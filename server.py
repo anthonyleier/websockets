@@ -15,20 +15,17 @@ clients = []
 nicknames = []
 
 
-def broadcast(message):
+def broadcast(client_atual, message):
     for client in clients:
-        client.send(message)
+        if client != client_atual:
+            client.send(message)
 
 
 def handle(client):
     while True:
         try:
             message = client.recv(1024)
-            print(message)
-            if 'kill' in message.decode('UTF8'):
-                client.close()
-                break
-            broadcast(message)
+            broadcast(client, message)
         except:
             index = clients.index(client)
             clients.remove(client)
@@ -49,7 +46,7 @@ def receive():
         clients.append(client)
 
         print('Nickname is {}'.format(nickname))
-        broadcast('{} joined!\n'.format(nickname).encode('UTF8'))
+        broadcast(client, '{} joined!\n'.format(nickname).encode('UTF8'))
 
         client.send('Connected to server!\n'.encode('UTF8'))
         thread = threading.Thread(target=handle, args=(client,))
