@@ -23,13 +23,17 @@ async def rodar_cliente():
 
     async with websockets.connect(uri) as websocket:
         client = Client(websocket)
+
+        identificacao = input('Identificação:')
+        await client.enviar_mensagem(identificacao)
+        await client.receber_mensagem()
+
         while True:
-            mensagem_para_enviar = input('Digite (ou "sair" para encerrar): ')
+            destinatario = input("Digite o identificador do destinatario:")
+            conteudo = input("Digite a mensagem:")
+            mensagem = f"{destinatario}:{conteudo}"
 
-            if mensagem_para_enviar.lower() == 'sair':
-                break
-
-            await client.enviar_mensagem(mensagem_para_enviar)
+            await client.enviar_mensagem(mensagem)
             await client.receber_mensagem()
 
 if __name__ == "__main__":
