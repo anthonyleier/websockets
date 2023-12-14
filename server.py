@@ -63,7 +63,7 @@ class Server:
     def receive(self):
         while True:
             client, address = self.connection.accept()
-            print(f'Conectado com {address}')
+            print(f'Conectado com {address[0]}:{address[1]}')
             self.connect_client(client)
 
             thread = threading.Thread(target=self.handle, args=[client])
