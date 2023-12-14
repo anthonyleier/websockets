@@ -5,12 +5,12 @@ import threading
 class Client:
     def __init__(self):
         self.conexao = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.ip = 'localhost'
+        self.host = 'localhost'
         self.porta = 7976
         self.nickname = None
 
     def conectar(self):
-        self.conexao.connect((self.ip, self.porta))
+        self.conexao.connect((self.host, self.porta))
 
     def desconectar(self):
         self.conexao.close()
