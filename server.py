@@ -18,7 +18,6 @@ class Server:
         self.connection.close()
 
     def broadcast(self, current_client, message):
-
         for client in self.clients:
             if client != current_client:
                 if type(message) is str:
