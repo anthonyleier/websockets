@@ -10,7 +10,7 @@ class Client:
         self.nickname = None
 
     def connect(self):
-        self.connection.connect((self.host, self.porta))
+        self.connection.connect((self.host, self.port))
 
     def disconnect(self):
         self.connection.close()
@@ -39,7 +39,7 @@ class Client:
     def send(self):
         while True:
             try:
-                message = '{}: {}'.format(self.nickname, input(''))
+                message = f"{self.nickname}: {input('')}"
                 self.connection.send(message.encode('UTF8'))
 
             except Exception as erro:
