@@ -13,6 +13,7 @@ class Server:
     def connect(self):
         self.connection.bind((self.host, self.port))
         self.connection.listen()
+        print("Servidor inicializado com sucesso!")
 
     def disconnect(self):
         self.connection.close()
@@ -71,7 +72,7 @@ class Server:
 
 
 def main():
-    server = Server('localhost', 7976)
+    server = Server('0.0.0.0', 7976)
     server.connect()
     server.receive()
 

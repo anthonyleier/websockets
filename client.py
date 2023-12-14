@@ -39,7 +39,7 @@ class Client:
     def send(self):
         while True:
             try:
-                message = f"{self.nickname}: {input('')}"
+                message = f"{self.nickname}: {input(f'{self.nickname}:')}"
                 self.connection.send(message.encode('UTF8'))
 
             except Exception as erro:
@@ -49,7 +49,7 @@ class Client:
 
 
 def main():
-    client = Client('localhost', 7976)
+    client = Client('10.0.0.24', 7976)
     client.connect()
     client.register(input("Nickname:"))
     client.start_chat()
