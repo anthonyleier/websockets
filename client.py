@@ -9,9 +9,15 @@ class Client:
         self.porta = 7976
         self.nickname = None
 
+    def conectar(self):
+        self.conexao.connect((self.ip, self.porta))
+
+    def desconectar(self):
+        self.conexao.close()
+
     def cadastrar(self, nickname):
         self.nickname = nickname
-        self.conexao.send(nickname.encode('ASCII'))
+        self.conexao.send(nickname.encode('UTF8'))
 
     def iniciar_chat(self):
         recebimento_thread = threading.Thread(target=self.recebimento)
@@ -22,30 +28,29 @@ class Client:
     def recebimento(self):
         while True:
             try:
-                message = self.conexao.recv(1024).decode('ASCII')
+                message = self.conexao.recv(1024).decode('UTF8')
                 print(message)
-            except:
-                print('Deu ruim mermao')
-                self.conexao.close()
+            except Exception as erro:
+                print(f'Ocorreu um erro no recebimento das mensagens: {erro}')
+                self.desconectar()
                 break
 
     def envio(self):
         while True:
-            message = '{}: {}'.format(self.nickname, input(''))
-            self.conexao.send(message.encode('ASCII'))
-
-    def conectar(self):
-        self.conexao.connect((self.ip, self.porta))
-
-    def desconectar(self):
-        self.conexao.close()
+            try:
+                message = '{}: {}'.format(self.nickname, input(''))
+                self.conexao.send(message.encode('UTF8'))
+            except Exception as erro:
+                print(f'Ocorreu um erro no envio das mensagens: {erro}')
+                self.desconectar()
+                break
 
 
 def main():
-    cliente = Client()
-    cliente.conectar()
-    cliente.cadastrar(input("Qual o seu nome?"))
-    cliente.iniciar_chat()
+    client = Client()
+    client.conectar()
+    client.cadastrar(input("Nickname:"))
+    client.iniciar_chat()
 
 
 if __name__ == "__main__":
