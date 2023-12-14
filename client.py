@@ -1,33 +1,34 @@
-import os
-import asyncio
-import websockets
+import socket
+import threading
+
+nickname = input('Choose your nickname: ')
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(('127.0.0.1', 7976))
 
 
-async def enviar_mensagens():
-    uri = "ws://localhost:8765"
+def receive():
+    while True:
+        try:
+            message = client.recv(1024).decode('ASCII')
+            if message == 'NICKNAME':
+                client.send(nickname.encode('ASCII'))
+            else:
+                print(message)
+        except:
+            print('Deu ruim mermao')
+            client.close()
+            break
 
-    async with websockets.connect(uri) as websocket:
-        websocket.send(input('identi'))
+
+def write():
+    while True:
+        message = '{}: {}'.format(nickname, input(''))
+        client.send(message.encode('ASCII'))
 
 
-async def receber_mensagens():
-    uri = "ws://localhost:8765"
-    historico = ''
+receive_thread = threading.Thread(target=receive)
+receive_thread.start()
 
-    async with websockets.connect(uri) as websocket:
-
-        with open('texto.txt', 'w', encoding='UTF8') as arquivo:
-            arquivo.write('start\n')
-
-        while True:
-            resposta = await websocket.recv()
-
-            if resposta != historico:
-                historico = resposta
-                with open('texto.txt', 'a', encoding='UTF8') as arquivo:
-                    arquivo.write(historico)
-
-if __name__ == "__main__":
-    asyncio.gather(enviar_mensagens(), receber_mensagens())
-    asyncio.get_event_loop().run_forever()
-    # asyncio.get_event_loop().run_until_complete(rodar_cliente())
+write_thread = threading.Thread(target=write)
+write_thread.start()

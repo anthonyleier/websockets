@@ -1,25 +1,56 @@
-import asyncio
-import websockets
+# https://hackernoon.com/creating-command-line-based-chat-room-using-python-oxu3u33
 
-mensagens = []
+import socket
+import threading
+
+host = 'localhost'
+port = 7976
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+server.bind((host, port))
+server.listen()
+
+clients = []
+nicknames = []
 
 
-def gerar_mensagens_texto():
-    texto = ''
-    for mensagem in mensagens:
-        texto += f"{mensagem['user']} - {mensagem['message']}\n"
-    return texto
+def broadcast(message):
+    for client in clients:
+        client.send(message)
 
 
-async def rodar_servidor(websocket):
-    mensagens.append({'user': 'server', 'message': 'opa'})
-
+def handle(client):
     while True:
-        print(await websocket.recv())
-        mensagens_texto = gerar_mensagens_texto()
-        print(mensagens_texto)
-        await websocket.send(mensagens_texto)
+        try:
+            message = client.recv(1024)
+            broadcast(message)
+        except:
+            index = clients.index(client)
+            clients.remove(client)
+            client.close()
+            nickname = nicknames[index]
+            broadcast('{} left!'.format(nickname).encode('ASCII'))
+            nicknames.remove(nickname)
+            break
 
 
-asyncio.get_event_loop().run_until_complete(websockets.serve(rodar_servidor, 'localhost', 8765))
-asyncio.get_event_loop().run_forever()
+def receive():
+    while True:
+        client, address = server.accept()
+        print('Connected with {}'.format(str(address)))
+        client.send('NICKNAME'.encode('ASCII'))
+
+        nickname = client.recv(1024).decode('ASCII')
+        nicknames.append(nickname)
+        clients.append(client)
+
+        print('Nickname is {}'.format(nickname))
+        broadcast('{} joined!'.format(nickname).encode('ASCII'))
+
+        client.send('Connected to server!'.encode('ASCII'))
+        thread = threading.Thread(target=handle, args=(client,))
+        thread.start()
+
+
+receive()
