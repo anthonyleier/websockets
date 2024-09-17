@@ -49,7 +49,7 @@ class Client:
 
 
 def main():
-    client = Client('10.0.0.24', 7976)
+    client = Client('127.0.0.1', 7976)
     client.connect()
     client.register(input("Nickname:"))
     client.start_chat()
